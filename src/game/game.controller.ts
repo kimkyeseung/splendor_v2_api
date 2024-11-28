@@ -1,13 +1,40 @@
-import { Controller, Get, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { GameService } from './game.service';
+import { CreateGameDto, UpdateGameStateDto, PlayerMoveDto } from './game.dto';
 
 @Controller('game')
 export class GameController {
   constructor(private readonly gameService: GameService) {}
 
-  @Get('*')
-  async handleGameServer(@Req() req: Request, @Res() res: Response) {
-    const server = this.gameService.getServerInstance();
-    server.app(req, res);
+  @Post()
+  async createGame(@Body() createGameDto: CreateGameDto) {
+    return this.gameService.createGame(createGameDto);
+  }
+
+  @Get(':roomId')
+  async getGame(@Param('roomId') roomId: string) {
+    return this.gameService.getGameByRoomId(roomId);
+  }
+
+  @Get(':roomId/state')
+  async getGameState(@Param('roomId') roomId: string) {
+    const game = await this.gameService.getGameByRoomId(roomId);
+    return game.boardState;
+  }
+
+  @Put(':roomId/state')
+  async updateGameState(
+    @Param('roomId') roomId: string,
+    @Body() updateGameStateDto: UpdateGameStateDto,
+  ) {
+    return this.gameService.updateGameState(roomId, updateGameStateDto);
+  }
+
+  @Post(':roomId/move')
+  async playerMove(
+    @Param('roomId') roomId: string,
+    @Body() playerMoveDto: PlayerMoveDto,
+  ) {
+    return this.gameService.playerMove(roomId, playerMoveDto);
   }
 }
