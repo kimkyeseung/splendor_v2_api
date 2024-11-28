@@ -1,27 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { Game } from './game.schema';
-import { CreateGameDto } from './game.dto';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Server } from 'boardgame.io/server';
+import { TicTacToe } from './splendor';
+import { PostgresStore } from 'bgio-postgres';
+
+const db = new PostgresStore(process.env.POSTGRESQL_URI);
 
 @Injectable()
-export class GameService {
-  constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
+export class GameService implements OnModuleInit {
+  private server: any;
 
-  async createGame(dto: CreateGameDto): Promise<Game> {
-    const game = new this.gameModel(dto);
-    return game.save();
+  onModuleInit() {
+    this.server = Server({ games: [TicTacToe], db });
   }
 
-  async getGameByRoomId(roomId: string): Promise<Game> {
-    return this.gameModel.findOne({ roomId }).exec();
-  }
-
-  async updateGame(roomId: string, boardState: object): Promise<Game> {
-    return this.gameModel.findOneAndUpdate(
-      { roomId },
-      { boardState },
-      { new: true },
-    );
+  getServerInstance() {
+    return this.server;
   }
 }
