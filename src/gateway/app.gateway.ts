@@ -8,6 +8,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { RoomService } from 'src/room/room.service';
 
 interface User {
   _id: string;
@@ -36,6 +37,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  constructor(private readonly roomService: RoomService) {}
+
   private clientRoomMap: Map<string, string> = new Map(); // 방 데이터
   private games: Record<string, any> = {}; // 게임 데이터
   private roomPlayersMap: Map<string, Player[]> = new Map();
@@ -55,6 +58,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     players = players.filter((p) => p.socketId !== client.id);
     if (players.length === 0) {
       this.roomPlayersMap.delete(clientRoomId);
+      this.roomService.deleteRoom(clientRoomId);
     } else {
       this.roomPlayersMap.set(clientRoomId, players);
     }

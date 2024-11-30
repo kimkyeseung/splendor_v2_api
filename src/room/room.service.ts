@@ -20,4 +20,13 @@ export class RoomService {
     const room = new this.roomModel(dto);
     return room.save();
   }
+
+  async deleteRoom(roomId: string): Promise<void> {
+    const result = await this.roomModel.deleteOne({ _id: roomId }).exec();
+    if (result.deletedCount > 0) {
+      console.log(`Room ${roomId} successfully deleted from the database.`);
+    } else {
+      console.log(`Room ${roomId} not found in the database.`);
+    }
+  }
 }
