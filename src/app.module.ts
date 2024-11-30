@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { GameModule } from './game/game.module';
 import { RoomModule } from './room/room.module';
 import { UsersModule } from './users/users.module';
+import { AppGateway } from './gateway/app.gateway';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { UsersModule } from './users/users.module';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppGateway],
 })
 export class AppModule {}
