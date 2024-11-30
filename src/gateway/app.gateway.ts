@@ -18,7 +18,6 @@ interface User {
 interface Player extends User {
   socketId: string;
   isReady: boolean;
-  isHost: boolean;
 }
 
 @WebSocketGateway({
@@ -43,6 +42,20 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private games: Record<string, any> = {}; // 게임 데이터
   private roomPlayersMap: Map<string, Player[]> = new Map();
 
+  getPlayers(roomId: string) {
+    return this.roomPlayersMap.get(roomId) || [];
+  }
+
+  setPlayers(roomId: string, players: Player[]) {
+    if (players.length === 0) {
+      this.roomPlayersMap.delete(roomId);
+      this.roomService.deleteRoom(roomId);
+    } else {
+      this.roomPlayersMap.set(roomId, players);
+      this.server.to(roomId).emit('playerListUpdated', players);
+    }
+  }
+
   handleConnection(client: Socket) {
     console.log(`Client connected: ${client.id}`);
   }
@@ -54,16 +67,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     console.log(`Client disconnected: ${client.id}`);
 
-    let players = this.roomPlayersMap.get(clientRoomId) || [];
+    let players = this.getPlayers(clientRoomId);
     players = players.filter((p) => p.socketId !== client.id);
-    if (players.length === 0) {
-      this.roomPlayersMap.delete(clientRoomId);
-      this.roomService.deleteRoom(clientRoomId);
-    } else {
-      this.roomPlayersMap.set(clientRoomId, players);
-    }
-
-    this.server.to(clientRoomId).emit('playerListUpdated', players);
+    this.setPlayers(clientRoomId, players);
   }
 
   @SubscribeMessage('joinRoom')
@@ -76,20 +82,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.join(roomId);
     this.clientRoomMap.set(client.id, roomId);
 
-    const players = this.roomPlayersMap.get(roomId) || [];
+    const players = this.getPlayers(roomId);
 
     const isHostPlayer: boolean = players.length === 0;
 
     const player: Player = {
       ...user,
       socketId: client.id,
-      isHost: isHostPlayer,
       isReady: isHostPlayer,
     };
     players.push(player);
-    this.roomPlayersMap.set(roomId, players);
-
-    this.server.to(roomId).emit('playerListUpdated', players);
+    this.setPlayers(roomId, players);
   }
 
   @SubscribeMessage('startGame')
@@ -104,14 +107,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('toggleReady')
-  async handleToggleReady(@MessageBody() data: { roomId: string; user: User }) {
+  async handleToggleReady(
+    @MessageBody() data: { roomId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
     const { roomId } = data;
-
-    this.games[roomId] = {
-      /* 초기화된 게임 상태 */
-    };
-
-    this.server.to(roomId).emit('gameStarted', this.games[roomId]);
+    let players = this.getPlayers(roomId);
+    players = players.map((p) =>
+      p.socketId === client.id ? { ...p, isReady: !p.isReady } : p,
+    );
+    this.setPlayers(roomId, players);
   }
 
   @SubscribeMessage('gameAction')
