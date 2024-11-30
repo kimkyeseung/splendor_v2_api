@@ -13,8 +13,8 @@ export class GameService {
     return game.save();
   }
 
-  async getGameByRoomId(roomId: string): Promise<Game> {
-    return this.gameModel.findOne({ roomId }).exec();
+  async getGameByRoomId(_id: string): Promise<Game> {
+    return this.gameModel.findOne({ _id }).exec();
   }
 
   async updateGameState(
@@ -33,13 +33,6 @@ export class GameService {
 
     if (!game) {
       throw new Error('Game not found');
-    }
-
-    // 게임 로직에 따라 boardState 업데이트
-    // 예: 플레이어 토큰 추가
-    const player = game.players.find((p) => p.id === dto.playerId);
-    if (player && dto.action === 'addToken') {
-      player.tokens += dto.data.amount;
     }
 
     return game.save();

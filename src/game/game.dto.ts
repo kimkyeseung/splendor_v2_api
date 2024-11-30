@@ -3,7 +3,6 @@ import { Player } from './game.schema';
 export class CreateGameDto {
   readonly roomId: string;
   readonly players: Player[];
-  readonly boardState: Record<string, any>;
 }
 
 export class UpdateGameStateDto {

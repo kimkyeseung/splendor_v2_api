@@ -96,14 +96,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('startGame')
-  handleStartGame(@MessageBody() data: { roomId: string }) {
-    const { roomId } = data;
+  async handleStartGame(
+    @MessageBody() data: { roomId: string; gameId: string },
+  ) {
+    const { roomId, gameId } = data;
 
-    this.games[roomId] = {
-      /* 초기화된 게임 상태 */
-    };
-
-    this.server.to(roomId).emit('gameStarted', this.games[roomId]);
+    this.server.to(roomId).emit('gameStarted', gameId);
   }
 
   @SubscribeMessage('toggleReady')

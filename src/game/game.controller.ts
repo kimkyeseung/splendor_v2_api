@@ -11,9 +11,9 @@ export class GameController {
     return this.gameService.createGame(createGameDto);
   }
 
-  @Get(':roomId')
-  async getGame(@Param('roomId') roomId: string) {
-    return this.gameService.getGameByRoomId(roomId);
+  @Get(':_id')
+  async getGame(@Param('_id') _id: string) {
+    return this.gameService.getGameByRoomId(_id);
   }
 
   @Get(':roomId/state')

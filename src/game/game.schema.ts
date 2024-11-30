@@ -2,9 +2,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export interface Player {
-  id: string;
-  name: string;
-  tokens: number;
+  _id: string;
+  nickname: string;
 }
 
 @Schema()
