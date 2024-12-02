@@ -7,6 +7,7 @@ import { GameModule } from './game/game.module';
 import { RoomModule } from './room/room.module';
 import { UsersModule } from './users/users.module';
 import { AppGateway } from './gateway/app.gateway';
+import { DataModule } from './data/module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AppGateway } from './gateway/app.gateway';
     GameModule,
     RoomModule,
     UsersModule,
+    DataModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],
