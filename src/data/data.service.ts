@@ -7,7 +7,10 @@ export class DataService {
   private readonly devCards = developmentCards;
   private readonly nobles = nobleTiles;
 
-  getDevelopmentCards() {
+  getDevelopmentCards(grade?: number) {
+    if (grade) {
+      return this.devCards.filter((c) => c.grade === grade);
+    }
     return this.devCards;
   }
 

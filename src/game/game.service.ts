@@ -3,12 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Game } from './game.schema';
 import { CreateGameDto, UpdateGameStateDto, PlayerMoveDto } from './game.dto';
+import { DataService } from './data.service';
 
 @Injectable()
 export class GameService {
-  constructor(@InjectModel(Game.name) private gameModel: Model<Game>) {}
+  constructor(
+    @InjectModel(Game.name) private gameModel: Model<Game>,
+    private readonly dataService: DataService,
+  ) {}
 
   async createGame(dto: CreateGameDto): Promise<Game> {
+    const lev1Cards = this.dataService.getDevelopmentCards(1);
     const game = new this.gameModel(dto);
     return game.save();
   }
