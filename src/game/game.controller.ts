@@ -16,12 +16,6 @@ export class GameController {
     return this.gameService.getGameByRoomId(_id);
   }
 
-  @Get(':roomId/state')
-  async getGameState(@Param('roomId') roomId: string) {
-    const game = await this.gameService.getGameByRoomId(roomId);
-    return game.boardState;
-  }
-
   @Put(':roomId/state')
   async updateGameState(
     @Param('roomId') roomId: string,
