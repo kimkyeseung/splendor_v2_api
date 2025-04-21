@@ -27,4 +27,8 @@ export class UsersService {
       { new: true },
     );
   }
+
+  async findAllUsers(): Promise<IUser[]> {
+    return await this.userModel.find().exec();
+  }
 }
