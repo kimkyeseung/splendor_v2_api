@@ -32,11 +32,17 @@ export class GameService {
     const lev3Cards = shuffle(this.dataService.getDevelopmentCards(3));
     const tokens = getTokensByPlayers(players.length);
 
+    const nobles = shuffle(this.dataService.getNobleTiles()).slice(
+      0,
+      players.length + 1,
+    );
+
     const game = new this.gameModel({
       lev1Cards,
       lev2Cards,
       lev3Cards,
       tokens,
+      nobles,
       roomId,
       players,
     });
